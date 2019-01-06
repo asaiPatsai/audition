@@ -1,8 +1,10 @@
 package lt.mano.audition;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -50,6 +52,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
 
         mApp = (App) getApplication();
+
         if (mApp.mGoogleApiClient == null) {
             mApp.mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -69,30 +72,45 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mListIcon = findViewById(R.id.list_icon);
         mCurrentTitle = findViewById(R.id.selected_name);
 
-        mCurrentTitle.setText(mData.scans.get(mSelectedPosition).name);
-        mListIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mRecyclerView.getVisibility() == View.VISIBLE) {
-                    mRecyclerView.setVisibility(View.GONE);
-                    mListIcon.setColorFilter(
-                            ContextCompat.getColor(MapActivity.this, R.color.black));
-                } else {
-                    mRecyclerView.setVisibility(View.VISIBLE);
-                    mListIcon.setColorFilter(
-                            ContextCompat.getColor(MapActivity.this, android.R.color.white));
-                    mRecyclerView.bringToFront();
+        if (mData.scans != null && !mData.scans.isEmpty()) {
+            mCurrentTitle.setText(mData.scans.get(mSelectedPosition).name);
+            mListIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mRecyclerView.getVisibility() == View.VISIBLE) {
+                        mRecyclerView.setVisibility(View.GONE);
+                        mListIcon.setColorFilter(
+                                ContextCompat.getColor(MapActivity.this, R.color.black));
+                    } else {
+                        mRecyclerView.setVisibility(View.VISIBLE);
+                        mListIcon.setColorFilter(
+                                ContextCompat.getColor(MapActivity.this, android.R.color.white));
+                        mRecyclerView.bringToFront();
+                    }
                 }
-            }
-        });
+            });
+
+            prepareList();
+        } else {
+            Snackbar snackbar = Snackbar
+                    .make(rootView, "No data received", Snackbar.LENGTH_LONG)
+                    .setAction("Retry", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            startActivity(new Intent(MapActivity.this, MainActivity.class));
+                            finish();
+                        }
+                    });
+            snackbar.show();
+        }
 
         acquireMap();
-        prepareList();
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mApp.googleMap = googleMap;
+        mApp.hideLoadingDialog();
     }
 
     @Override

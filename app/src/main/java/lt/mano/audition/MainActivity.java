@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText mPassword;
     private Button mLogInButton;
     private App mApp;
+    private NetworkInfo mActiveNetwork;
     public View rootView;
 
     private BroadcastReceiver mNetworkChangeReceiver = new BroadcastReceiver() {
@@ -36,8 +37,8 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(
                     Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetwork = cm != null ? cm.getActiveNetworkInfo() : null;
-            if (null == activeNetwork) {
+            mActiveNetwork = cm != null ? cm.getActiveNetworkInfo() : null;
+            if (null == mActiveNetwork) {
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle("Warning")
                         .setMessage("Turn on wifi or mobile data to use this app")
@@ -77,10 +78,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (mUserName.getText().length() > 0 && mPassword.getText().length() > 0) {
-                    mApp.showLoadingDialog(MainActivity.this);
-                    LoginTask task = new LoginTask(MainActivity.this,
-                            mUserName.getText().toString(), mPassword.getText().toString());
-                    task.execute();
+                    if (mActiveNetwork != null) {
+                        mApp.showLoadingDialog(MainActivity.this);
+                        LoginTask task = new LoginTask(MainActivity.this,
+                                mUserName.getText().toString(), mPassword.getText().toString());
+                        task.execute();
+                    } else {
+                        Snackbar snackbar = Snackbar
+                                .make(rootView, "No connection", Snackbar.LENGTH_SHORT);
+                        snackbar.show();
+                    }
                 } else {
                     Snackbar snackbar = Snackbar
                             .make(rootView, "No info submitted", Snackbar.LENGTH_SHORT);

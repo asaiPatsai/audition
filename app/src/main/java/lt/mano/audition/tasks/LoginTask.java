@@ -34,7 +34,7 @@ public class LoginTask extends AsyncTask<String, Void, Data> {
             LoginHandler handler = new LoginHandler(mName, mPassword);
             result = handler.login();
         } catch (IOException e) {
-            Log.e("Test", "Error receiving data", e);
+            Log.e("Test", "Error receiving login data", e);
             Snackbar snackbar = Snackbar
                     .make(((MainActivity) mContextRef.get()).rootView,
                             "Something went wrong " + e.getMessage(), Snackbar.LENGTH_SHORT);
@@ -48,6 +48,8 @@ public class LoginTask extends AsyncTask<String, Void, Data> {
     protected void onPostExecute(Data result) {
         if (result != null) {
             showDataActivity(result);
+        } else {
+            ((MainActivity)mContextRef.get()).hideLoading();
         }
     }
 

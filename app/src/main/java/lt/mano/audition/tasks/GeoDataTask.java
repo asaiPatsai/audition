@@ -30,7 +30,7 @@ public class GeoDataTask extends AsyncTask<String, Void, GeoData> {
             GeoMapHandler handler = new GeoMapHandler(mScanId, mToken);
             result = handler.getData();
         } catch (IOException e) {
-            Log.e("Test", "Error receiving data", e);
+            Log.e("Test", "Error receiving geo data", e);
             Snackbar snackbar = Snackbar
                     .make(((MapActivity) mContextRef.get()).rootView,
                             "Something went wrong " + e.getMessage(), Snackbar.LENGTH_SHORT);
